@@ -1,0 +1,109 @@
+{% extends "people/station_base.html" %}
+
+{% load schedule_tags people_tags media_tags bootstrap3 common_tags %}
+
+{% block media %}
+	{% add_js "lib/bootstrap/js/bootstrap.js" %}
+	{{ block.super }}
+{% endblock %}
+
+{% block page-header %}
+	{{ block.super }}
+	<h2>Schedule for {{ week_start }} - {{ week_end }}</h2>
+{% endblock %}
+
+{% block breadcrumb %}
+<li><a href="{% url "dashboard" %}">Dashboard</a></li>
+<li><a href="{% url "station-dashboard" station_pk=station.pk %}">{{ station.name }}</a></li>
+<li class="active">View schedule</li>
+{% endblock %}
+
+{% block content_station %}
+<table class="table table-bordered table-striped table-condensed station-schedule">
+	<thead>
+		<tr>
+			<th rowspan="2">Person</th>
+			<th colspan="{{ week_range|length }}">Roster</th>
+		</tr>
+		<tr>
+			{% for date in week_range %}
+				<th class='day'>{{ date.isoformat }}</th>
+			{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for person in station.people.all %}
+		<tr data-person-id="{{ person.id }}">
+			<th class="person">
+				{{ person.name }}
+				<a class="pull-right glyphicon glyphicon-edit" href="{% url "set-schedule-for-person" station_pk=station.pk person_pk=person.pk %}" target="_blank"></a>
+				<br>
+				<small>
+				{{ person.rank }}
+					{% qualification_badges person.qualifications.all %}
+				</small>
+				{% if person.phone_numbers.exists %}
+					<div class='contact-details'>
+						<dl class="">
+							{% for phone_number in person.phone_numbers.all %}
+							<dt>{{ phone_number.type }}</dt>
+							<dd>{{ phone_number.number }}</dd>
+							{% endfor %}
+						</dl>
+					</div>
+				{% endif %}
+			</th>
+			{% with schedule=person.schedule|by_days:week_range %}{% for date, availability in schedule %}
+			<td class="day" data-date="{{ date.isoformat }}">
+				{% if availability %}
+				<div class="availability alert alert-{{ availability.get_status_class }}"
+					style="{{ availability|position }}"
+					data-availability
+					data-availability-id="{{ availability.pk }}"
+					data-availability-status="{{ availability.status }}"
+					data-availability-update-url="{% url "update-availability" station_pk=station.pk person_pk=person.pk availability_pk=availability.pk %}">
+					<p class="text-center">{{ availability.get_status_display }}</p>
+					{% if availability.comments %}
+						<div>{{ availability.comments|linebreaks }}</div>
+					{% endif %}
+				</div>
+				{% endif %}
+			</td>
+			{% endfor %}{% endwith %}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+
+<script>
+jQuery(function($) {
+
+	var statusDisplay = {{ availability_statuses|json|safe }};
+	var statusClasses = {{ availability_classes|json|safe }};
+	$updateForm = $('[data-update-form]').parent();
+	$availabilityId = $updateForm.find('input[type=hidden]');
+
+	$('[data-availability]').each(function() {
+		var $availability = $(this);
+		$availability.click(function() {
+			var current = $availability.data('availabilityStatus');
+			var to = (current == 'rostered') ? 'available' : 'rostered';
+			$.ajax({
+				url: $availability.data('availabilityUpdateUrl'),
+				method: 'POST',
+				data: { 'status': to },
+				success: function() {
+					$availability.removeClass(statusClasses[current]);
+					$availability.addClass(statusClasses[to]);
+					$availability.text(statusDisplay[to]);
+					$availability.data('availabilityStatus', to);
+				},
+			});
+		});
+	});
+
+})
+</script>
+
+{% endblock %}

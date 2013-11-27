@@ -1,0 +1,8 @@
+{% extends "people/station_base.html" %}
+
+{% block content_station %}
+	<nav><ul class="nav nav-pills nav-stacked">
+		<li><a href="{% url "set-schedule" station_pk=station.pk %}">Enter times</a></li>
+		<li><a href="{% url "view-schedule" station_pk=station.pk %}">View/allocate shifts</a></li>
+	</ul></nav>
+{% endblock %}

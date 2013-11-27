@@ -1,0 +1,157 @@
+{% extends "schedules/set/base.html" %}
+
+{% load bootstrap3 common_form_tags people_tags %}
+
+{% block page-header %}
+	{{ block.super }}
+	<h2>
+		{{ person }}
+		<small>
+			{{ person.rank }}
+			{% qualification_badges person.qualifications.all %}
+		</small>
+	</h2>
+{% endblock %}
+{% block breadcrumb %}
+<li><a href="{% url "dashboard" %}">Dashboard</a></li>
+<li><a href="{% url "station-dashboard" station_pk=station.pk %}">{{ station.name }}</a></li>
+<li><a href="{% url "set-schedule" station_pk=station.pk %}">Set schedule</a></li>
+<li class="active">{{ person.name }}</li>
+{% endblock %}
+
+{% block content_station %}
+
+<h3>
+<ul class="pager">
+	<li class="previous"><a href="?week_start={{ previous_week.isoformat }}">&larr; {{ previous_week }}</a></li>
+	<li>
+{{ week_start|date:"l, d/m/Y" }} - {{ week_end|date:"d/m/Y" }}
+</li>
+	<li class="next"><a href="?week_start={{ next_week.isoformat }}">{{ next_week }} &rarr;</a></li>
+</ul>
+</h3>
+
+<dl class="dl-horizontal">
+	{% for phone_number in person.phone_numbers.all %}
+	<dt>{{ phone_number.type }}</dt>
+	<dd>{{ phone_number.number }}</dd>
+	{% endfor %}
+</dl>
+
+<form action="." method="post" role="form">{% csrf_token %}
+	<table class="table table-striped table-compact table-form set-schedule">
+		<thead>
+			<tr>
+				<th>Date</th>
+				<th colspan="2">Times</th>
+				<th>Availability</th>
+				<th>Comments</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for form in schedule_forms %}
+				<tr data-availability>
+					<th width="10%">{{ form.date }}</th>
+					<td width="0%" class="buttons">
+						<button type="button" class="btn btn-default" data-all-day alt="All day"><span class="glyphicon glyphicon-ok-sign"></span></button>
+						<button type="button" class="btn btn-default" data-toggle-times alt="Custom times"><span class="glyphicon glyphicon-time"></span></button>
+					</td>
+					<td width="40%" data-start-end-time>
+						<div style="position: relative">
+							<div class="btn-group btn-group-justified" data-shifts>
+								{% for shift in station.shifts.all %}
+								<a href="#" class="btn btn-default {% if form.start.value == shift.start or form.end.value == shift.end %}active{% endif %}"
+										data-shift-start="{{ shift.start.isoformat }}"
+										data-shift-end="{{ shift.end.isoformat }}">
+										{{ shift.nickname }}
+									</a>
+								{% endfor %}
+							</div>
+							<div class="row form-group {% if form.start.errors or form.end.errors %}has-error{% else %}hidden{% endif %}" data-times>
+								<div class="col-sm-6" data-start-time>
+									{% bootstrap_field form.start show_label=False %}
+								</div>
+
+								<div class="col-sm-6" data-end-time>
+									{% bootstrap_field form.end show_label=False %}
+								</div>
+							</div>
+						</div>
+					</td>
+					<td width="25%" data-status>{{ form.status|add_class:'form-control' }}</td>
+					<td width="25%">{{ form.comments|add_class:'form-control textarea-grow' }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<div class="form-group">
+		<button type="submit" class="btn btn-primary">Set schedule</button>
+	</div>
+</form>
+
+<script>
+(function() {
+	var _2a = function (a) { return [].slice.call(a); }
+	var scheduleRows = _2a(document.querySelectorAll('[data-availability]'));
+	scheduleRows.forEach(function(availability) {
+		var timeWrapper = availability.querySelector('[data-times]');
+		var start = timeWrapper.querySelector('[data-start-time] input');
+		var end = timeWrapper.querySelector('[data-end-time] input');
+		var shiftWrapper = availability.querySelector('[data-shifts]');
+		var shiftButtons = _2a(shiftWrapper.querySelectorAll('a'));
+
+		var toggleButton = availability.querySelector('[data-toggle-times]');
+		toggleButton.addEventListener('click', function(e) {
+			timeWrapper.classList.toggle('hidden');
+		});
+
+		var allDayButton = availability.querySelector('[data-all-day]');
+		allDayButton.addEventListener('click', function(e) {
+			start.value = shiftButtons[0].dataset.shiftStart;
+			end.value = shiftButtons[shiftButtons.length - 1].dataset.shiftEnd;
+			shiftButtons.forEach(function(button) { button.classList.add('active'); });
+
+			defaultToAvailable();
+		});
+
+		var defaultToAvailable = function() {
+			if (status.selectedIndex === 0) {
+				status.selectedIndex = _2a(status.querySelectorAll('option')).indexOf(
+					status.querySelector('option[value={{ available_status }}]'));
+			}
+		};
+
+		start.addEventListener('change', defaultToAvailable);
+		end.addEventListener('change', defaultToAvailable);
+
+		var status = availability.querySelector('[data-status] select');
+
+		var startTimeButton = null;
+		shiftWrapper.addEventListener('click', function(e) {
+			if (shiftButtons.indexOf(e.target) === -1) return;
+
+			if (startTimeButton === null || shiftButtons.indexOf(startTimeButton) > shiftButtons.indexOf(e.target)) {
+				start.value = e.target.dataset.shiftStart;
+				end.value = e.target.dataset.shiftEnd;
+				startTimeButton = e.target;
+				shiftButtons.forEach(function(el) {
+					el.classList.remove('active');
+				})
+				startTimeButton.classList.add('active');
+			} else {
+				end.value = e.target.dataset.shiftEnd;
+				console.log("Going from", shiftButtons.indexOf(startTimeButton), "to", shiftButtons.indexOf(e.target));
+				for (var i = shiftButtons.indexOf(startTimeButton), e = shiftButtons.indexOf(e.target); i <= e; i++) {
+					console.log('button', i, 'of', shiftButtons, 'is', shiftButtons[i]);
+					shiftButtons[i].classList.add('active');
+				}
+				startTimeButton = null;
+			}
+
+			defaultToAvailable();
+		});
+	});
+})();
+</script>
+
+{% endblock %}

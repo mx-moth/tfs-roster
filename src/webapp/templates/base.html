@@ -1,0 +1,95 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en-au"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+
+	{% load media_tags %}
+	{% block media %}{% media %}
+		{% add_css "screen" "lib/bootstrap/css/bootstrap.min.css" %}
+		{% add_css "screen" "css/site.css" %}
+
+		{% add_js jquery_path %}
+	{% endmedia %}{% endblock %}
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<title>{% block title_base %}{% block title %}Welcome{% endblock %} - TFS Volunteer Roster{% endblock %}</title>
+
+	<link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
+
+	<script src="{{ STATIC_URL }}lib/modernizr.js"></script>
+	<script>
+// Allows $(fn) onload queuing in the body, with jQuery still down the end.
+var jQuery = $ = onloadQueue = (function() {
+	var q = [], j = null
+	eq = function() { j ? j.apply(j, arguments) : q.push(arguments); };
+	eq.run = function(realJQuery) {
+		j = realJQuery;
+		for (var i = 0, l = q.length; i < l; i++) {
+			try { j.apply(j, q[i]); }
+			catch (e) { setTimeout(function() { throw e; }, 0); }
+		}
+		q = null;
+	};
+	return eq;
+})();
+	</script>
+
+	{% print_media "css" %}
+
+	{% block style %}
+		{% block extra_style %}{% endblock %}
+	{% endblock %}
+
+	{% block extra_head %}{% endblock %}
+</head>
+
+<body>
+<div class="container container-full-width">
+
+	<header>
+		{% block header_base %}
+			{% block header %}{% endblock %}
+		{% endblock %}
+	</header>
+
+	<div id="main" role="main">
+		{% block content_base %}
+			{% block content %}{% endblock %}
+		{% endblock %}
+	</div>
+
+	<footer>
+		{% block footer_base %}
+			{% block footer %}{% endblock %}
+		{% endblock %}
+	</footer>
+
+	{% block script %}
+		{% print_media "js" %}
+		<script>
+$('body').addClass('jquery');
+jQuery(onloadQueue.run);
+(function() {
+	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+		</script>
+	{% endblock %}
+
+	{% block extra_body %}{% endblock %}
+
+	<!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
+	chromium.org/developers/how-tos/chrome-frame-getting-started -->
+	<!--[if lt IE 7 ]>
+	<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+	<script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+	<![endif]-->
+
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% load bootstrap3 %}
+
+<div class="container">
+	<form action="{% url "update-availability" station_pk=station.pk person_pk=person.pk availability_pk=availability.pk %}"
+		method="post"
+		class="form-horizontal"
+		data-update-availability>
+		{% csrf_token %}
+		{% bootstrap_form update_form %}
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary btn-block">Update</button>
+		</div>
+	</form>
+</div>

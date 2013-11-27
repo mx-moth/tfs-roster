@@ -1,0 +1,10 @@
+Django==1.5.2
+South==0.8.2
+django-admin-extensions==0.4.2
+django-chainable-manager==0.3.1
+django-featured-item==0.3.0
+django-jquery-js==2.0.3
+django-positions==0.4.6
+django-template-media==0.2.0
+-e git+https://bitbucket.org/ionata/django-localflavor-au.git@c4d4b91e9e89276440096e2a6b14e7f07c287121#egg=django-localflavour-au
+django-bootstrap3==1.0.0
