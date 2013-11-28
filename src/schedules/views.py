@@ -58,6 +58,8 @@ def set_schedule_for_person(request, station_pk, person_pk):
                                        prefix='date_' + date.isoformat())
                       for date in dates]
 
+    next_person = station.people.current().successor_of(person)
+
     if request.method == 'POST':
         changed_forms = [form for form in schedule_forms if form.has_changed()]
         if all(form.is_valid() for form in changed_forms):
@@ -65,6 +67,11 @@ def set_schedule_for_person(request, station_pk, person_pk):
             messages.success(request,
                              "{0}'s schedule for {1} - {2} has been set".format(
                                  person, week_start, week_end))
+            next_action = request.POST.get('next-action', None)
+            if next_action == 'next-person' and next_person:
+                return redirect(reverse(set_schedule_for_person, kwargs={
+                    'station_pk': station_pk,
+                    'person_pk': next_person.pk}))
             return redirect(reverse(pick_person, kwargs={
                 'station_pk': station_pk}))
 
@@ -76,7 +83,8 @@ def set_schedule_for_person(request, station_pk, person_pk):
         'schedule_forms': schedule_forms,
         'available_status': Availability.STATUS_AVAILABLE,
         'person': person,
-        'station': station})
+        'station': station,
+        'next_person': next_person})
 
 
 @login_required

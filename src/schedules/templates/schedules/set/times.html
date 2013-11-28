@@ -85,7 +85,10 @@
 		</tbody>
 	</table>
 	<div class="form-group">
-		<button type="submit" class="btn btn-primary">Set schedule</button>
+		<button type="submit" class="btn btn-primary">Save</button>
+		{% if next_person %}
+			<button type="submit" class="btn btn-default" name='next-action' value='next-person'>Save and next person</button>
+		{% endif %}
 	</div>
 </form>
 
