@@ -27,7 +27,7 @@
 		</tr>
 		<tr>
 			{% for date in week_range %}
-				<th class='day'>{{ date.isoformat }}</th>
+				<th class='day'>{{ date|date:"D, jS M" }}</th>
 			{% endfor %}
 		</tr>
 	</thead>
