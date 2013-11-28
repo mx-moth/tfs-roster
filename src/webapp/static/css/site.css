@@ -20,7 +20,10 @@ textarea.textarea-grow {
 
 table.station-schedule .person {
   position: relative;
-  white-space: nowrap; }
+  white-space: nowrap;
+  padding-right: 2em; }
+  table.station-schedule .person .pull-right {
+    margin-right: -1.5em; }
 table.station-schedule .contact-details {
   display: block;
   position: absolute;
@@ -43,6 +46,8 @@ table.station-schedule .contact-details dl {
 table.station-schedule .day {
   width: 200px;
   position: relative; }
+  table.station-schedule .day:last-child {
+    overflow: hidden; }
   table.station-schedule .day .availability {
     white-space: nowrap;
     display: block;

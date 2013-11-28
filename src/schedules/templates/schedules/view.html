@@ -36,12 +36,8 @@
 		<tr data-person-id="{{ person.id }}">
 			<th class="person">
 				{{ person.name }}
-				<a class="pull-right glyphicon glyphicon-edit" href="{% url "set-schedule-for-person" station_pk=station.pk person_pk=person.pk %}" target="_blank"></a>
-				<br>
-				<small>
-				{{ person.rank }}
-					{% qualification_badges person.qualifications.all %}
-				</small>
+				{% qualification_badges person.qualifications.all %}
+
 				{% if person.phone_numbers.exists %}
 					<div class='contact-details'>
 						<dl class="">
@@ -52,6 +48,10 @@
 						</dl>
 					</div>
 				{% endif %}
+
+				<span class="pull-right">
+					<a class="glyphicon glyphicon-edit" href="{% url "set-schedule-for-person" station_pk=station.pk person_pk=person.pk %}" target="_blank"></a>
+				</span>
 			</th>
 			{% with schedule=person.schedule|by_days:week_range %}{% for date, availability in schedule %}
 			<td class="day" data-date="{{ date.isoformat }}">

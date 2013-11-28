@@ -28,6 +28,10 @@ table.station-schedule {
 	.person {
 		position: relative;
 		white-space: nowrap;
+		padding-right: 2em;
+		.pull-right {
+			margin-right: -1.5em;
+		}
 	}
 	.contact-details {
 		display: block;
@@ -54,6 +58,11 @@ table.station-schedule {
 	.day {
 		width: 200px;
 		position: relative;
+
+		&:last-child {
+			overflow: hidden;
+		}
+
 		.availability {
 			white-space: nowrap;
 			display: block;
