@@ -22,7 +22,7 @@ class SelectPersonForm(forms.Form):
 class AvailabilityForm(forms.ModelForm):
     class Meta:
         model = Availability
-        fields = ('start', 'end', 'status', 'comments')
+        fields = ('start', 'end', 'availability', 'rostered', 'comments')
 
     def __init__(self, data=None, files=None, instance=None, person=None,
                  date=None, **kwargs):
@@ -40,9 +40,3 @@ class AvailabilityForm(forms.ModelForm):
             instance.save()
 
         return instance
-
-
-class UpdateAvailabilityForm(forms.ModelForm):
-    class Meta(object):
-        model = Availability
-        fields = ('id', 'status', 'truck')

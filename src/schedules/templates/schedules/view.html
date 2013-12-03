@@ -56,17 +56,7 @@
 			{% with schedule=person.schedule|by_days:week_range %}{% for date, availability in schedule %}
 			<td class="day" data-date="{{ date.isoformat }}">
 				{% if availability %}
-				<div class="availability alert alert-{{ availability.get_status_class }}"
-					style="{{ availability|position }}"
-					data-availability
-					data-availability-id="{{ availability.pk }}"
-					data-availability-status="{{ availability.status }}"
-					data-availability-update-url="{% url "update-availability" station_pk=station.pk person_pk=person.pk availability_pk=availability.pk %}">
-					<p class="text-center">{{ availability.get_status_display }}</p>
-					{% if availability.comments %}
-						<div>{{ availability.comments|linebreaks }}</div>
-					{% endif %}
-				</div>
+					{% include "schedules/availability/bubble.html" %}
 				{% endif %}
 			</td>
 			{% endfor %}{% endwith %}
@@ -79,27 +69,17 @@
 <script>
 jQuery(function($) {
 
-	var statusDisplay = {{ availability_statuses|json|safe }};
-	var statusClasses = {{ availability_classes|json|safe }};
-	$updateForm = $('[data-update-form]').parent();
-	$availabilityId = $updateForm.find('input[type=hidden]');
-
-	$('[data-availability]').each(function() {
+	$schedule = $('#station-schedule');
+	$schedule.on('click', '[data-availability]', function(e) {
+		console.log(this, e);
 		var $availability = $(this);
-		$availability.click(function() {
-			var current = $availability.data('availabilityStatus');
-			var to = (current == 'rostered') ? 'available' : 'rostered';
-			$.ajax({
-				url: $availability.data('availabilityUpdateUrl'),
-				method: 'POST',
-				data: { 'status': to },
-				success: function() {
-					$availability.removeClass(statusClasses[current]);
-					$availability.addClass(statusClasses[to]);
-					$availability.text(statusDisplay[to]);
-					$availability.data('availabilityStatus', to);
-				},
-			});
+		$.ajax({
+			url: $availability.data('availabilityUpdateUrl'),
+			method: 'POST',
+			success: function(data) {
+				$(data).insertAfter($availability);
+				$availability.remove();
+			},
 		});
 	});
 

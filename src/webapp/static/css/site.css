@@ -58,7 +58,8 @@ table.station-schedule .day {
     text-oveflow: ellipsis;
     overflow: hidden;
     z-index: 1;
-    height: 100%; }
+    height: 100%;
+    cursor: pointer; }
 table.station-schedule th.day {
   text-align: center; }
 table.station-schedule td.day {

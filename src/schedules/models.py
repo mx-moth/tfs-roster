@@ -59,23 +59,23 @@ class Availability(models.Model):
     STATUS_UNAVAILABLE = 'unavailable'
     STATUS_WORKING = 'working'
     STATUS_AVAILABLE = 'available'
-    STATUS_ROSTERED = 'rostered'
     STATUS_REST_DAY = 'rest'
-    STATUS_CHOICES = (
-        (STATUS_UNAVAILABLE, 'Unavailable'),
-        (STATUS_WORKING, 'Working, but available'),
-        (STATUS_AVAILABLE, 'Available'),
-        (STATUS_ROSTERED, 'Rostered'),
-        (STATUS_REST_DAY, 'Rest day'),
-    )
+    STATUS_ROSTERED = 'rostered'
     STATUS_CSS_CLASSES = {
         STATUS_UNAVAILABLE: 'danger',
         STATUS_WORKING: 'warning',
         STATUS_AVAILABLE: 'success',
-        STATUS_ROSTERED: 'info',
         STATUS_REST_DAY: 'warning',
+        STATUS_ROSTERED: 'info',
     }
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES)
+    AVAILABILITY_CHOICES = (
+        (STATUS_UNAVAILABLE, 'Unavailable'),
+        (STATUS_WORKING, 'Working, but available'),
+        (STATUS_AVAILABLE, 'Available'),
+        (STATUS_REST_DAY, 'Rest day'),
+    )
+    availability = models.CharField(max_length=15, choices=AVAILABILITY_CHOICES)
+    rostered = models.BooleanField(default=False)
 
     truck = models.ForeignKey('people.Truck', null=True, blank=True)
 
@@ -84,7 +84,7 @@ class Availability(models.Model):
     objects = AvailabilityManager()
 
     class Meta(object):
-        ordering = ('date', 'start', 'status')
+        ordering = ('date', 'start', '-rostered', 'availability')
         verbose_name_plural = 'schedule'
 
     def __unicode__(self):
@@ -95,6 +95,17 @@ class Availability(models.Model):
             end=self.end,
             status=self.get_status_display())
 
+    @property
+    def status(self):
+        return self.STATUS_ROSTERED if self.rostered else self.availability
+
     def get_status_class(self):
         """Get a CSS class appropriate for the status"""
-        return self.STATUS_CSS_CLASSES.get(self.status, '')
+        status = self.STATUS_ROSTERED if self.rostered else self.status
+        return self.STATUS_CSS_CLASSES.get(status, '')
+
+    def get_status_display(self):
+        if self.rostered:
+            return 'Rostered'
+        else:
+            return self.get_availability_display()

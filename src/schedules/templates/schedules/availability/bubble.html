@@ -1,0 +1,14 @@
+{% load schedule_tags common_tags %}
+
+<div class="availability alert alert-{{ availability.get_status_class }}"
+	style="{{ availability|position }}"
+	data-availability
+	data-availability-id="{{ availability.pk }}"
+	data-availability-availability="{{ availability.availability }}"
+	data-availability-rostered="{{ availability.rostered|json }}"
+	data-availability-update-url="{% url "toggle-rostered" station_pk=station.pk person_pk=person.pk availability_pk=availability.pk %}">
+	<p class="text-center">{{ availability.get_status_display }}</p>
+	{% if availability.comments %}
+		<div>{{ availability.comments|linebreaks }}</div>
+	{% endif %}
+</div>

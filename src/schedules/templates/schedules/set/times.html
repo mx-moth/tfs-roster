@@ -50,7 +50,7 @@
 		</thead>
 		<tbody>
 			{% for form in schedule_forms %}
-				<tr data-availability>
+				<tr data-availability-row>
 					<th width="10%">{{ form.date|date:"D, jS M" }}</th>
 					<td width="0%" class="buttons">
 						<button type="button" class="btn btn-primary" data-all-day alt="All day"><span class="glyphicon glyphicon-ok-sign"></span></button>
@@ -78,7 +78,7 @@
 							</div>
 						</div>
 					</td>
-					<td width="25%" data-status>{{ form.status|add_class:'form-control' }}</td>
+					<td width="25%" data-availability>{{ form.availability|add_class:'form-control' }}</td>
 					<td width="25%">{{ form.comments|add_class:'form-control textarea-grow' }}</td>
 				</tr>
 			{% endfor %}
@@ -95,20 +95,20 @@
 <script>
 (function() {
 	var _2a = function (a) { return [].slice.call(a); }
-	var scheduleRows = _2a(document.querySelectorAll('[data-availability]'));
-	scheduleRows.forEach(function(availability) {
-		var timeWrapper = availability.querySelector('[data-times]');
+	var scheduleRows = _2a(document.querySelectorAll('[data-availability-row]'));
+	scheduleRows.forEach(function(row) {
+		var timeWrapper = row.querySelector('[data-start-end-time]');
 		var start = timeWrapper.querySelector('[data-start-time] input');
 		var end = timeWrapper.querySelector('[data-end-time] input');
-		var shiftWrapper = availability.querySelector('[data-shifts]');
+		var shiftWrapper = row.querySelector('[data-shifts]');
 		var shiftButtons = _2a(shiftWrapper.querySelectorAll('a'));
 
-		var toggleButton = availability.querySelector('[data-toggle-times]');
+		var toggleButton = row.querySelector('[data-toggle-times]');
 		toggleButton.addEventListener('click', function(e) {
 			timeWrapper.classList.toggle('hidden');
 		});
 
-		var allDayButton = availability.querySelector('[data-all-day]');
+		var allDayButton = row.querySelector('[data-all-day]');
 		allDayButton.addEventListener('click', function(e) {
 			start.value = shiftButtons[0].dataset.shiftStart;
 			end.value = shiftButtons[shiftButtons.length - 1].dataset.shiftEnd;
@@ -117,17 +117,17 @@
 			defaultToAvailable();
 		});
 
+		var availability = row.querySelector('[data-availability] select');
+
 		var defaultToAvailable = function() {
-			if (status.selectedIndex === 0) {
-				status.selectedIndex = _2a(status.querySelectorAll('option')).indexOf(
-					status.querySelector('option[value={{ available_status }}]'));
+			if (availability.selectedIndex === 0) {
+				availability.selectedIndex = _2a(availability.querySelectorAll('option')).indexOf(
+					availability.querySelector('option[value={{ available_status }}]'));
 			}
 		};
 
 		start.addEventListener('change', defaultToAvailable);
 		end.addEventListener('change', defaultToAvailable);
-
-		var status = availability.querySelector('[data-status] select');
 
 		var startTimeButton = null;
 		shiftWrapper.addEventListener('click', function(e) {

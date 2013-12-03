@@ -4,12 +4,14 @@ from contextlib import contextmanager
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.formtools.wizard.views import SessionWizardView
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 
 from people.models import Station, Person
 
-from .forms import SelectPersonForm, AvailabilityForm, UpdateAvailabilityForm
+from .forms import SelectPersonForm, AvailabilityForm
 from .models import Availability
 from .utils import daterange
 
@@ -87,26 +89,26 @@ def set_schedule_for_person(request, station_pk, person_pk):
         'next_person': next_person})
 
 
+@csrf_exempt  # TODO Fix up the view
+@require_POST
 @login_required
-def update_availability(request, station_pk, person_pk, availability_pk):
+def toggle_rostered(request, station_pk, person_pk, availability_pk):
     station = get_object_or_404(Station, pk=station_pk)
     person = get_object_or_404(station.people.current(), pk=person_pk)
     availability = get_object_or_404(person.schedule, pk=availability_pk)
 
-    update_availability_form = UpdateAvailabilityForm(
-        data=request.POST or None,
-        instance=availability)
-
     if request.method == 'POST':
-        if update_availability_form.is_valid():
-            update_availability_form.save()
-            return render(request, 'schedules/update_availability_done.html')
+        availability.rostered = not availability.rostered
+        availability.save()
+        return render(request, 'schedules/update_availability_done.html', {
+            'station': station,
+            'person': person,
+            'availability': availability})
 
     return render(request, 'schedules/update_availability.html', {
         'station': station,
         'person': person,
-        'availability': availability,
-        'update_form': update_availability_form})
+        'availability': availability})
 
 
 @login_required
@@ -126,6 +128,4 @@ def view_schedule(request, station_pk):
         'week_range': list(daterange(week_start, next_week)),
         'previous_week': previous_week,
         'next_week': next_week,
-        'station': station,
-        'availability_statuses': dict(Availability.STATUS_CHOICES),
-        'availability_classes': dict(Availability.STATUS_CSS_CLASSES)})
+        'station': station})

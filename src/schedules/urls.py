@@ -16,9 +16,9 @@ urlpatterns = patterns(
         views.set_schedule_for_person,
         name='set-schedule-for-person'),
 
-    url(r'^update/(?P<person_pk>\d+)/(?P<availability_pk>\d+)$',
-        views.update_availability,
-        name='update-availability'),
+    url(r'^toggle-rostered/(?P<person_pk>\d+)/(?P<availability_pk>\d+)$',
+        views.toggle_rostered,
+        name='toggle-rostered'),
 
     url(r'^view/$',
         views.view_schedule,
