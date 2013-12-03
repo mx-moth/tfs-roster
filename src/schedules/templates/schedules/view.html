@@ -19,7 +19,18 @@
 {% endblock %}
 
 {% block content_station %}
-<table class="table table-bordered table-striped table-condensed station-schedule">
+
+<h3>
+<ul class="pager">
+	<li class="previous"><a href="?week_start={{ previous_week.isoformat }}">&larr; {{ previous_week }}</a></li>
+	<li>
+{{ week_start|date:"l, d/m/Y" }} - {{ week_end|date:"d/m/Y" }}
+</li>
+	<li class="next"><a href="?week_start={{ next_week.isoformat }}">{{ next_week }} &rarr;</a></li>
+</ul>
+</h3>
+
+<table id="station-schedule" class="table table-bordered table-striped table-condensed station-schedule">
 	<thead>
 		<tr>
 			<th rowspan="2">Person</th>
