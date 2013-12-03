@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'django_template_media',
     'jquery',
     'bootstrap3',
+    'south',
 
     # Django apps
     'django.contrib.auth',
