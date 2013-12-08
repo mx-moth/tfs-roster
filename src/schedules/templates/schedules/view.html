@@ -81,11 +81,12 @@
 jQuery(function($) {
 
 	$schedule = $('#station-schedule');
-	$schedule.on('click', '[data-availability]', function(e) {
-		console.log(this, e);
-		var $availability = $(this);
+	$schedule.on('submit', '[data-availability] form', function(e) {
+		e.preventDefault();
+		var $form = $(this);
+		var $availability = $form.parents('[data-availability]').first();
 		$.ajax({
-			url: $availability.data('availabilityUpdateUrl'),
+			url: $form.attr('action'),
 			method: 'POST',
 			success: function(data) {
 				$(data).insertAfter($availability);
