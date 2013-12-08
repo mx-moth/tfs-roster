@@ -25,7 +25,10 @@ textarea.textarea-grow {
 }
 
 table.station-schedule {
+	table-layout: fixed;
+
 	.person {
+		width: 200px;
 		position: relative;
 		white-space: nowrap;
 		padding-right: 2em;
