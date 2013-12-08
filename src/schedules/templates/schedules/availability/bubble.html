@@ -8,7 +8,7 @@
 	data-availability-rostered="{{ availability.rostered|json }}"
 	data-availability-update-url="{% url "toggle-rostered" station_pk=station.pk person_pk=person.pk availability_pk=availability.pk %}">
 	<form action="{% url "toggle-rostered" station_pk=station.pk person_pk=person.pk availability_pk=availability.pk %}" method="post">
-		<button class="btn btn-link btn-xs pull-right"><span class="glyphicon glyphicon-{% if availability.rostered %}remove{% else %}ok{% endif %}"></span></button>
+		<button class="btn btn-link btn-xs pull-left"><span class="glyphicon glyphicon-{% if availability.rostered %}remove{% else %}ok{% endif %}"></span></button>
 		<div class="text-center">
 			{{ availability.get_status_display }}
 		</div>
